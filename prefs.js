@@ -1,3 +1,7 @@
+/*
+ * @author Philipp Hoffmann
+ */
+
 const Lang = imports.lang;
 const Gtk = imports.gi.Gtk;
 
@@ -46,7 +50,7 @@ function addTabPanel(notebook, server_num)
     // use server name as tab label
     let tabLabel = new Gtk.Label({ label: settingsJSON['servers'][server_num]['name']});
     
-    let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL });
+    let vbox = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
 
     // *** jenkins connection ***
     let labelJenkinsConnection = new Gtk.Label({ label: "<b>" + _("Jenkins connection") + "</b>", use_markup: true, xalign: 0 });
@@ -146,7 +150,7 @@ function addTabPanel(notebook, server_num)
         
         // had to replace the spinbutton since the change event is not triggered if the value is change by key presses
         //let inputAutorefreshInterval = new Gtk.SpinButton({ numeric: true, adjustment: new Gtk.Adjustment({value: settings.get_int("autorefresh-interval"), lower: 1, upper: 86400, step_increment: 1}) });
-        let inputAutorefreshInterval = new Gtk.HScale.new_with_range( 1, 600, 1 );
+        let inputAutorefreshInterval = new Gtk.Scale({orientation: Gtk.Orientation.HORIZONTAL, adjustment: new Gtk.Adjustment({lower: 1, upper: 600, step_increment: 1})});
         inputAutorefreshInterval.set_value(settingsJSON['servers'][server_num]['autorefresh_interval']);
         inputAutorefreshInterval.set_size_request(200, -1);
         
@@ -223,6 +227,18 @@ function addTabPanel(notebook, server_num)
 
         // show aborted jobs
         vboxFilters.add(buildIconSwitchSetting("grey", _('Show aborted jobs'), 'show_aborted_jobs', server_num));
+	
+	 // Jobs to show
+	let hboxJobsToShow = new Gtk.Box({orientation: Gtk.Orientation.HORIZONTAL});
+	let labelJobsToShow = new Gtk.Label({label: _("Jobs to show"), xalign: 0});
+	let inputJobsToShow = new Gtk.Entry({ editable: true, hexpand: true, text: settingsJSON['servers'][server_num]['jobs_to_show'] });
+
+	inputJobsToShow.connect("changed", Lang.bind(this, function(input){ updateServerSetting(server_num, "jobs_to_show", input.text); }));
+
+        hboxJobsToShow.pack_start(labelJobsToShow, true, true, 0);
+        hboxJobsToShow.add(inputJobsToShow);
+	vboxFilters.add(hboxJobsToShow);
+
     vbox.add(vboxFilters);
     
     // button to remove tab
@@ -248,8 +264,8 @@ function addTabPanel(notebook, server_num)
     tabWidget.show_all();
     
     // tab content
-    let tabContent = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, border_width: 10 });
-    tabContent.add(vbox);
+    let tabContent = new Gtk.ScrolledWindow({ vexpand: true });
+    tabContent.add_with_viewport(vbox);
     
     // append tab to notebook
     notebook.append_page(tabContent, tabWidget);

@@ -1,3 +1,7 @@
+/*
+ * @author Philipp Hoffmann
+ */
+
 const Params = imports.misc.params;
 
 // default settings for new servers
@@ -24,7 +28,8 @@ let DefaultSettings = {
             "show_failed_jobs": true,
             "show_neverbuilt_jobs": false,
             "show_disabled_jobs": false,
-            "show_aborted_jobs": false
+            "show_aborted_jobs": false,
+	    "jobs_to_show": "all"
         }
     ]
 }
@@ -40,7 +45,7 @@ function getSettingsJSON(settings)
 	
 	for( let i=0 ; i<settingsJSON.servers.length ; ++i )
 	{
-		for( setting in DefaultSettings.servers[0] )
+		for( var setting in DefaultSettings.servers[0] )
 		{
 			if( !(setting in settingsJSON.servers[i]) )
 				settingsJSON.servers[i][setting] = DefaultSettings.servers[0][setting];
